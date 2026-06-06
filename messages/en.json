@@ -1,0 +1,82 @@
+{
+  "Metadata": {
+    "title": "PolyViewer | Polymarket forecast explorer",
+    "description": "Explore live and resolved Polymarket forecasts in a read-only viewer."
+  },
+  "Navigation": {
+    "live": "Live forecasts",
+    "resolved": "Resolved",
+    "language": "Language",
+    "openMenu": "Open navigation",
+    "home": "Go to PolyViewer home"
+  },
+  "Disclaimer": {
+    "text": "PolyViewer is an independent, read-only information viewer. It does not provide trading, financial, investment, gambling, or legal advice. Forecast data comes from Polymarket. Users are responsible for verifying applicable laws and restrictions in their jurisdiction and assume all responsibility for how they use this information.",
+    "short": "PolyViewer is not affiliated with or endorsed by Polymarket."
+  },
+  "Listing": {
+    "liveEyebrow": "Market intelligence",
+    "liveTitle": "Live forecasts",
+    "liveDescription": "Browse active prediction markets and see the probabilities implied by current market prices.",
+    "resolvedEyebrow": "Forecast archive",
+    "resolvedTitle": "Resolved forecasts",
+    "resolvedDescription": "Review closed events and the final probabilities reported by Polymarket.",
+    "searchLabel": "Search forecasts",
+    "searchPlaceholder": "Search markets and events",
+    "categoryLabel": "Category",
+    "allCategories": "All categories",
+    "sortLabel": "Sort by",
+    "sortVolume24h": "24h volume",
+    "sortVolume": "All-time volume",
+    "sortLiquidity": "Liquidity",
+    "sortClosingSoon": "Closing soon",
+    "sortNewestResolved": "Recently resolved",
+    "apply": "Apply filters",
+    "clear": "Clear",
+    "results": "{count, plural, =1 {# event on this page} other {# events on this page}}",
+    "emptyTitle": "No forecasts found",
+    "emptyDescription": "Try a different search or filter combination.",
+    "errorTitle": "Forecasts are temporarily unavailable",
+    "errorDescription": "Polymarket did not return data. Please try again shortly.",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {page}"
+  },
+  "Market": {
+    "live": "Live",
+    "resolved": "Resolved",
+    "markets": "{count, plural, =1 {# market} other {# markets}}",
+    "volume": "Volume",
+    "volume24h": "24h volume",
+    "liquidity": "Liquidity",
+    "ends": "Ends",
+    "closed": "Closed",
+    "viewForecast": "View forecast",
+    "probability": "Probability",
+    "unavailable": "Unavailable"
+  },
+  "Detail": {
+    "back": "Back to forecasts",
+    "about": "About this event",
+    "resolutionSource": "Resolution source",
+    "openPolymarket": "View on Polymarket",
+    "selectMarket": "Forecast market",
+    "outcomes": "Current outcomes",
+    "history": "Probability history",
+    "historyDescription": "Historical implied probability for {outcome}.",
+    "range": "Chart range",
+    "range1d": "1D",
+    "range1w": "1W",
+    "range1m": "1M",
+    "rangeMax": "MAX",
+    "chartEmpty": "Price history is unavailable for this market and range.",
+    "chartError": "The probability chart could not be loaded.",
+    "notFound": "This forecast could not be found.",
+    "marketStatus": "Market status"
+  },
+  "Footer": {
+    "dataSource": "Forecast data supplied by Polymarket's public APIs.",
+    "rights": "PolyViewer. Read-only market viewer.",
+    "developedBy": "Developed by Felipe Moreno"
+  }
+}
