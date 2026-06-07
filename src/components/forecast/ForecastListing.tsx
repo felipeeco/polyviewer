@@ -54,15 +54,15 @@ export async function ForecastListing({
   const pathname = live ? "/" : "/resolved";
 
   return (
-    <div className="pv-grid py-10 sm:py-14">
+    <div className="pv-grid px-0 py-6 sm:px-0 sm:py-8">
       <section className="max-w-3xl">
         <p className="pv-eyebrow">
           {t(live ? "liveEyebrow" : "resolvedEyebrow")}
         </p>
-        <h1 className="pv-title mt-3 text-4xl text-white sm:text-6xl">
+        <h1 className="text-2xl sm:text-4xl">
           {t(live ? "liveTitle" : "resolvedTitle")}
         </h1>
-        <p className="mt-5 max-w-2xl text-base leading-7 text-muted sm:text-lg">
+        <p className="mt-5 max-w-2xl text-sm leading-6 text-muted sm:text-base">
           {t(live ? "liveDescription" : "resolvedDescription")}
         </p>
       </section>

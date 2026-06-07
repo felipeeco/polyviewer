@@ -8,6 +8,7 @@
     "resolved": "Resueltos",
     "language": "Idioma",
     "openMenu": "Abrir navegación",
+    "closeMenu": "Cerrar navegación",
     "home": "Ir al inicio de PolyViewer"
   },
   "Disclaimer": {
