@@ -10,35 +10,26 @@ import {
 import {Link} from "@/i18n/navigation";
 import {ProbabilityChart} from "./ProbabilityChart";
 import {rankForecastMarkets} from "@/lib/polymarket/markets";
-import type {
-  ChartRange,
-  ForecastEvent,
-  ForecastMarket
-} from "@/lib/polymarket/types";
+import type {ChartRange, ForecastEvent} from "@/lib/polymarket/types";
 
-function detailHref(
-  slug: string,
-  market: ForecastMarket,
-  range: ChartRange
-): string {
-  const params = new URLSearchParams({market: market.id, range});
+function detailHref(slug: string, range: ChartRange): string {
+  const params = new URLSearchParams({range});
   return `/event/${slug}?${params}`;
 }
 
 export async function EventDetail({
   event,
-  market,
   range
 }: {
   event: ForecastEvent;
-  market: ForecastMarket;
   range: ChartRange;
 }) {
   const t = await getTranslations();
   const format = await getFormatter();
   const status = event.closed ? "resolved" : "live";
-  const leadingOutcome = market.outcomes[0];
   const rankedMarkets = rankForecastMarkets(event.markets);
+  const leadingMarket = rankedMarkets[0];
+  const leadingOutcome = leadingMarket?.outcomes[0];
 
   return (
     <div className="pv-grid py-9 sm:py-12">
@@ -130,65 +121,67 @@ export async function EventDetail({
         })}
       </section>
 
-      {event.markets.length > 1 ? (
-        <section className="mt-8">
-          <h2 className="text-xs font-bold uppercase text-muted">
-            {t("Detail.selectMarket")}
-          </h2>
-          <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
-            {rankedMarkets.map((option) => (
-              <Link
-                key={option.id}
-                href={detailHref(event.slug, option, range)}
-                className={`shrink-0 rounded-card border px-4 py-3 text-sm font-semibold transition ${
-                  option.id === market.id
-                    ? "border-pv-red bg-pv-red/15 text-white"
-                    : "border-white/10 bg-white/[0.035] text-muted hover:border-white/25 hover:text-white"
-                }`}
-              >
-                {option.question}
-              </Link>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
       <section className="pv-panel mt-8 p-5 sm:p-7">
-        <div className="flex flex-col gap-5 border-b border-white/10 pb-6 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="pv-eyebrow">{t("Detail.marketStatus")}</p>
-            <h2 className="mt-2 font-display text-2xl font-bold sm:text-3xl">
-              {market.question}
-            </h2>
-          </div>
-          <span className="shrink-0 rounded-full border border-white/15 bg-white/5 px-3 py-2 text-xs font-bold uppercase text-muted">
-            {t(`Market.${market.closed ? "resolved" : "live"}`)}
-          </span>
-        </div>
-
-        <h3 className="mt-6 text-xs font-bold uppercase text-muted">
+        <h2 className="text-xs font-bold uppercase text-muted">
           {t("Detail.outcomes")}
-        </h3>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          {market.outcomes.map((outcome, index) => (
-            <div
-              key={`${outcome.name}-${index}`}
-              className="flex items-center justify-between rounded-card border border-white/10 bg-black/35 p-4"
+        </h2>
+        <div className="mt-3 divide-y divide-white/10">
+          {rankedMarkets.map((option) => (
+            <article
+              key={option.id}
+              className="grid gap-4 py-5 first:pt-0 last:pb-0 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center"
             >
-              <span className="text-muted">{outcome.name}</span>
-              <strong
-                className={`font-display text-3xl ${
-                  index === 0 ? "text-pv-red-bright" : "text-white"
-                }`}
-              >
-                {outcome.probability === null
-                  ? "—"
-                  : format.number(outcome.probability, {
-                      style: "percent",
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className={`rounded-full border px-2.5 py-1 text-[0.68rem] font-extrabold uppercase ${
+                      option.closed
+                        ? "border-white/15 bg-white/5 text-muted"
+                        : "border-pv-success/35 bg-pv-success/10 text-pv-success"
+                    }`}
+                  >
+                    {t(`Market.${option.closed ? "resolved" : "live"}`)}
+                  </span>
+                  <span className="text-xs font-bold uppercase text-disabled">
+                    {t("Market.volume")}:{" "}
+                    {format.number(option.volume, {
+                      notation: "compact",
+                      style: "currency",
+                      currency: "USD",
                       maximumFractionDigits: 1
                     })}
-              </strong>
-            </div>
+                  </span>
+                </div>
+                <h3 className="mt-2 font-display text-xl font-bold leading-tight sm:text-2xl">
+                  {option.question}
+                </h3>
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-2 lg:min-w-80">
+                {option.outcomes.map((outcome, index) => (
+                  <div
+                    key={`${outcome.name}-${index}`}
+                    className="flex min-w-0 items-center justify-between gap-4 rounded-card border border-white/10 bg-black/35 px-4 py-3"
+                  >
+                    <span className="truncate text-sm text-muted">
+                      {outcome.name}
+                    </span>
+                    <strong
+                      className={`shrink-0 font-display text-2xl ${
+                        index === 0 ? "text-pv-red-bright" : "text-white"
+                      }`}
+                    >
+                      {outcome.probability === null
+                        ? "—"
+                        : format.number(outcome.probability, {
+                            style: "percent",
+                            maximumFractionDigits: 1
+                          })}
+                    </strong>
+                  </div>
+                ))}
+              </div>
+            </article>
           ))}
         </div>
       </section>
@@ -209,7 +202,7 @@ export async function EventDetail({
             {(["1d", "1w", "1m", "max"] as const).map((option) => (
               <Link
                 key={option}
-                href={detailHref(event.slug, market, option)}
+                href={detailHref(event.slug, option)}
                 className={`rounded-lg px-3 py-2 text-xs font-extrabold uppercase transition ${
                   range === option
                     ? "bg-pv-red text-white"

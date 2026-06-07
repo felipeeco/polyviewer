@@ -60,7 +60,6 @@
     "about": "About this event",
     "resolutionSource": "Resolution source",
     "openPolymarket": "View on Polymarket",
-    "selectMarket": "Forecast market",
     "outcomes": "Current outcomes",
     "history": "Probability history",
     "historyDescription": "Historical implied probability for {outcome}.",
@@ -71,8 +70,7 @@
     "rangeMax": "MAX",
     "chartEmpty": "Price history is unavailable for this market and range.",
     "chartError": "The probability chart could not be loaded.",
-    "notFound": "This forecast could not be found.",
-    "marketStatus": "Market status"
+    "notFound": "This forecast could not be found."
   },
   "Footer": {
     "dataSource": "Forecast data supplied by Polymarket's public APIs.",

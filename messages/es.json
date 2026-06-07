@@ -60,7 +60,6 @@
     "about": "Acerca de este evento",
     "resolutionSource": "Fuente de resolución",
     "openPolymarket": "Ver en Polymarket",
-    "selectMarket": "Mercado del pronóstico",
     "outcomes": "Resultados actuales",
     "history": "Historial de probabilidad",
     "historyDescription": "Probabilidad implícita histórica para {outcome}.",
@@ -71,8 +70,7 @@
     "rangeMax": "MÁX",
     "chartEmpty": "El historial de precios no está disponible para este mercado y rango.",
     "chartError": "No se pudo cargar el gráfico de probabilidad.",
-    "notFound": "No se encontró este pronóstico.",
-    "marketStatus": "Estado del mercado"
+    "notFound": "No se encontró este pronóstico."
   },
   "Footer": {
     "dataSource": "Datos de pronósticos suministrados por las API públicas de Polymarket.",
