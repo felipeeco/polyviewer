@@ -1,3 +1,5 @@
+import {Resolver} from "node:dns/promises";
+import {request} from "node:https";
 import {
   normalizeEvent,
   normalizePriceHistory,
@@ -15,6 +17,11 @@ import type {
 const GAMMA_API = "https://gamma-api.polymarket.com";
 const CLOB_API = "https://clob.polymarket.com";
 const PAGE_SIZE = 24;
+const REQUEST_TIMEOUT_MS = 6000;
+const DIRECT_FETCH_TIMEOUT_MS = 2500;
+const PUBLIC_DNS_SERVERS = ["1.1.1.1", "8.8.8.8"];
+const addressCache = new Map<string, Promise<string[]>>();
+const publicDnsFallbackHosts = new Set<string>();
 
 type ListingOptions = {
   status: ForecastStatus;
@@ -54,17 +61,110 @@ function listingOrder(status: ForecastStatus, sort?: string): {
   }
 }
 
-async function getJson(url: URL, revalidate: number): Promise<unknown> {
-  const response = await fetch(url, {
-    next: {revalidate},
-    headers: {accept: "application/json"}
-  });
+function resolvePublicAddresses(hostname: string): Promise<string[]> {
+  const cached = addressCache.get(hostname);
+  if (cached) return cached;
 
-  if (!response.ok) {
-    throw new Error(`Polymarket request failed with ${response.status}`);
+  const lookup = (async () => {
+    const resolver = new Resolver();
+    resolver.setServers(PUBLIC_DNS_SERVERS);
+    return resolver.resolve4(hostname);
+  })();
+
+  addressCache.set(hostname, lookup);
+  lookup.catch(() => addressCache.delete(hostname));
+  return lookup;
+}
+
+function requestJsonAtAddress(url: URL, address: string): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    const upstream = request(
+      {
+        protocol: url.protocol,
+        hostname: address,
+        port: 443,
+        path: `${url.pathname}${url.search}`,
+        method: "GET",
+        servername: url.hostname,
+        headers: {
+          accept: "application/json",
+          host: url.hostname,
+          "user-agent": "PolyViewer/1.0"
+        },
+        timeout: REQUEST_TIMEOUT_MS
+      },
+      (response) => {
+        const chunks: Buffer[] = [];
+
+        response.on("data", (chunk: Buffer) => chunks.push(chunk));
+        response.on("end", () => {
+          const status = response.statusCode ?? 500;
+          if (status < 200 || status >= 300) {
+            reject(new Error(`Polymarket request failed with ${status}`));
+            return;
+          }
+
+          try {
+            resolve(JSON.parse(Buffer.concat(chunks).toString("utf8")));
+          } catch {
+            reject(new Error("Polymarket returned invalid JSON"));
+          }
+        });
+      }
+    );
+
+    upstream.on("timeout", () => {
+      upstream.destroy(new Error("Polymarket request timed out"));
+    });
+    upstream.on("error", reject);
+    upstream.end();
+  });
+}
+
+async function requestJsonThroughPublicDns(url: URL): Promise<unknown> {
+  const addresses = await resolvePublicAddresses(url.hostname);
+  let lastError: unknown = new Error("No public address was found");
+
+  for (const address of addresses) {
+    try {
+      return await requestJsonAtAddress(url, address);
+    } catch (error) {
+      lastError = error;
+    }
   }
 
-  return response.json();
+  throw lastError;
+}
+
+async function getJson(url: URL, revalidate: number): Promise<unknown> {
+  if (publicDnsFallbackHosts.has(url.hostname)) {
+    return requestJsonThroughPublicDns(url);
+  }
+
+  try {
+    const response = await fetch(url, {
+      next: {revalidate},
+      headers: {accept: "application/json"},
+      signal: AbortSignal.timeout(DIRECT_FETCH_TIMEOUT_MS)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Polymarket request failed with ${response.status}`);
+    }
+
+    return response.json();
+  } catch (directError) {
+    publicDnsFallbackHosts.add(url.hostname);
+
+    try {
+      return await requestJsonThroughPublicDns(url);
+    } catch (fallbackError) {
+      throw new AggregateError(
+        [directError, fallbackError],
+        `Unable to reach ${url.hostname}`
+      );
+    }
+  }
 }
 
 /**
@@ -86,6 +186,7 @@ export async function getForecastEvents({
     url.searchParams.set("q", query.trim());
     url.searchParams.set("page", String(safePage));
     url.searchParams.set("limit_per_type", String(PAGE_SIZE + 1));
+    url.searchParams.set("events_status", status === "live" ? "active" : "closed");
     url.searchParams.set("search_profiles", "false");
     url.searchParams.set("search_tags", "false");
     url.searchParams.set("keep_closed_markets", status === "resolved" ? "1" : "0");
@@ -135,8 +236,8 @@ export async function getForecastTags(): Promise<ForecastTag[]> {
   const url = new URL("/tags", GAMMA_API);
   url.searchParams.set("limit", "100");
   url.searchParams.set("offset", "0");
-  url.searchParams.set("order", "volume");
-  url.searchParams.set("ascending", "false");
+  url.searchParams.set("order", "id");
+  url.searchParams.set("ascending", "true");
 
   const payload = await getJson(url, 86400);
   return (Array.isArray(payload) ? payload : [])

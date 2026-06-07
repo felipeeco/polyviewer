@@ -18,7 +18,9 @@ from Polymarket's Gamma and CLOB APIs.
 The application has no database and persists no market or user data. Next.js
 fetch caching limits repeated upstream requests. Live events revalidate after
 approximately one minute, charts after five minutes, and archive/tag data after
-one day.
+one day. If the host network redirects or blocks Polymarket DNS, the API adapter
+resolves the same hardcoded Polymarket hostname through public DNS and retries
+HTTPS with normal certificate and hostname verification.
 
 ## Infrastructure & Deployment
 
@@ -35,3 +37,4 @@ authentication, image optimization, or paid storage.
 ### Architecture Updates - 2026-06-06
 
 - Established the stateless bilingual forecast viewer architecture.
+- Added resilient public-DNS fallback and isolated optional category failures.

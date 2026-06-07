@@ -31,14 +31,23 @@ export async function ForecastListing({
   let tags: ForecastTag[] = [];
   let failed = false;
 
-  try {
-    [data, tags] = await Promise.all([
-      getForecastEvents({status, page, query, tagId: tag, sort}),
-      getForecastTags()
-    ]);
-  } catch {
+  const [eventsResult, tagsResult] = await Promise.allSettled([
+    getForecastEvents({status, page, query, tagId: tag, sort}),
+    getForecastTags()
+  ]);
+
+  if (eventsResult.status === "fulfilled") {
+    data = eventsResult.value;
+  } else {
+    console.error("Unable to load Polymarket forecasts", eventsResult.reason);
     failed = true;
     data = {events: [], hasNextPage: false};
+  }
+
+  if (tagsResult.status === "fulfilled") {
+    tags = tagsResult.value;
+  } else {
+    console.error("Unable to load Polymarket categories", tagsResult.reason);
   }
 
   const live = status === "live";

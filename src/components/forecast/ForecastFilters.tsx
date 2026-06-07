@@ -37,7 +37,6 @@ export function ForecastFilters({
       <label className="grid gap-2 text-xs font-bold uppercase text-muted">
         {labels.search}
         <span className="relative">
-          <LuSearch className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-disabled" />
           <input
             name="q"
             defaultValue={values.query}
