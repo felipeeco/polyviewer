@@ -4,8 +4,7 @@ import {
   LuArrowUpRight,
   LuCalendarClock,
   LuCircleDollarSign,
-  LuDroplets,
-  LuExternalLink
+  LuDroplets
 } from "react-icons/lu";
 import {Link} from "@/i18n/navigation";
 import {ProbabilityChart} from "./ProbabilityChart";
@@ -28,11 +27,9 @@ export async function EventDetail({
   const format = await getFormatter();
   const status = event.closed ? "resolved" : "live";
   const rankedMarkets = rankForecastMarkets(event.markets);
-  const leadingMarket = rankedMarkets[0];
-  const leadingOutcome = leadingMarket?.outcomes[0];
 
   return (
-    <div className="pv-grid py-9 sm:py-12">
+    <div className="pv-grid py-7 sm:py-9">
       <Link
         href={event.closed ? "/resolved" : "/"}
         className="inline-flex items-center gap-2 text-xs font-bold uppercase text-muted transition hover:text-white"
@@ -41,7 +38,7 @@ export async function EventDetail({
         {t("Detail.back")}
       </Link>
 
-      <section className="mt-6 grid gap-8 lg:grid-cols-[1fr_20rem]">
+      <section className="mt-5 grid gap-6 border-b border-white/10 pb-7 lg:grid-cols-[1fr_18rem]">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <span
@@ -62,10 +59,10 @@ export async function EventDetail({
               </span>
             ))}
           </div>
-          <h1 className="pv-title mt-5 max-w-4xl text-4xl sm:text-6xl">
+          <h1 className="pv-title mt-4 max-w-4xl text-2xl sm:text-4xl">
             {event.title}
           </h1>
-          <p className="mt-5 flex items-center gap-2 text-sm text-muted">
+          <p className="mt-4 flex items-center gap-2 text-xs text-muted sm:text-sm">
             <LuCalendarClock className="size-4 text-pv-red" />
             {event.endDate
               ? `${t(status === "live" ? "Market.ends" : "Market.closed")}: ${format.dateTime(
@@ -77,7 +74,7 @@ export async function EventDetail({
         </div>
 
         <div
-          className="min-h-52 rounded-panel border border-white/10 bg-elevated bg-cover bg-center"
+          className="min-h-44 rounded-panel border border-white/10 bg-elevated bg-cover bg-center"
           style={
             event.image
               ? {backgroundImage: `url("${event.image.replaceAll('"', "%22")}")`}
@@ -91,7 +88,7 @@ export async function EventDetail({
         />
       </section>
 
-      <section className="mt-8 grid gap-4 sm:grid-cols-3">
+      <section className="mt-6 grid gap-3 border-b border-white/10 pb-6 sm:grid-cols-3">
         {[
           [LuCircleDollarSign, t("Market.volume"), event.volume],
           [LuArrowUpRight, t("Market.volume24h"), event.volume24h],
@@ -99,15 +96,15 @@ export async function EventDetail({
         ].map(([Icon, label, value]) => {
           const StatIcon = Icon as typeof LuCircleDollarSign;
           return (
-            <div key={String(label)} className="pv-panel flex items-center gap-4 p-5">
-              <span className="grid size-11 place-items-center rounded-full border border-pv-red/40 bg-pv-red/10 text-pv-red-bright">
-                <StatIcon className="size-5" />
+            <div key={String(label)} className="pv-panel flex items-center gap-3 p-4">
+              <span className="grid size-9 place-items-center rounded-full border border-pv-red/40 bg-pv-red/10 text-pv-red-bright">
+                <StatIcon className="size-4" />
               </span>
               <div>
                 <span className="text-xs font-bold uppercase text-disabled">
                   {label as string}
                 </span>
-                <strong className="mt-1 block text-xl">
+                <strong className="mt-1 block text-lg">
                   {format.number(Number(value), {
                     notation: "compact",
                     style: "currency",
@@ -121,7 +118,7 @@ export async function EventDetail({
         })}
       </section>
 
-      <section className="pv-panel mt-8 p-5 sm:p-7">
+      <section className="pv-panel mt-6 p-5 sm:p-6">
         <h2 className="text-xs font-bold uppercase text-muted">
           {t("Detail.outcomes")}
         </h2>
@@ -129,7 +126,7 @@ export async function EventDetail({
           {rankedMarkets.map((option) => (
             <article
               key={option.id}
-              className="grid gap-4 py-5 first:pt-0 last:pb-0 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center"
+              className="grid gap-3 py-4 first:pt-0 last:pb-0 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center"
             >
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
@@ -142,7 +139,7 @@ export async function EventDetail({
                   >
                     {t(`Market.${option.closed ? "resolved" : "live"}`)}
                   </span>
-                  <span className="text-xs font-bold uppercase text-disabled">
+                  <span className="text-[0.68rem] font-bold uppercase text-disabled">
                     {t("Market.volume")}:{" "}
                     {format.number(option.volume, {
                       notation: "compact",
@@ -152,7 +149,7 @@ export async function EventDetail({
                     })}
                   </span>
                 </div>
-                <h3 className="mt-2 font-display text-xl font-bold leading-tight sm:text-2xl">
+                <h3 className="mt-2 font-display text-base font-bold leading-tight sm:text-lg">
                   {option.question}
                 </h3>
               </div>
@@ -161,13 +158,13 @@ export async function EventDetail({
                 {option.outcomes.map((outcome, index) => (
                   <div
                     key={`${outcome.name}-${index}`}
-                    className="flex min-w-0 items-center justify-between gap-4 rounded-card border border-white/10 bg-black/35 px-4 py-3"
+                    className="flex min-w-0 items-center justify-between gap-4 rounded-card border border-white/10 bg-black/35 px-3 py-2.5"
                   >
-                    <span className="truncate text-sm text-muted">
+                    <span className="truncate text-xs text-muted">
                       {outcome.name}
                     </span>
                     <strong
-                      className={`shrink-0 font-display text-2xl ${
+                      className={`shrink-0 font-display text-lg ${
                         index === 0 ? "text-pv-red-bright" : "text-white"
                       }`}
                     >
@@ -186,16 +183,14 @@ export async function EventDetail({
         </div>
       </section>
 
-      <section className="pv-panel mt-8 p-5 sm:p-7">
+      <section className="pv-panel mt-6 p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="font-display text-2xl font-bold">
-              {t("Detail.history")}
+            <h2 className="font-display text-xl font-bold">
+              {t("Detail.mainActors")}
             </h2>
-            <p className="mt-1 text-sm text-muted">
-              {t("Detail.historyDescription", {
-                outcome: leadingOutcome?.name ?? ""
-              })}
+            <p className="mt-1 text-xs leading-5 text-muted sm:text-sm">
+              {t("Detail.actorsDescription")}
             </p>
           </div>
           <div className="flex gap-1" aria-label={t("Detail.range")}>
@@ -215,16 +210,16 @@ export async function EventDetail({
           </div>
         </div>
         <div className="mt-6">
-          <ProbabilityChart outcome={leadingOutcome} range={range} />
+          <ProbabilityChart markets={rankedMarkets} range={range} />
         </div>
       </section>
 
-      <section className="mt-8 grid gap-6 lg:grid-cols-[1fr_auto]">
-        <div className="pv-panel p-6">
-          <h2 className="font-display text-2xl font-bold">
+      <section className="mt-6 grid gap-6 border-t border-white/10 pt-6 lg:grid-cols-[1fr_auto]">
+        <div className="pv-panel p-5 sm:p-6">
+          <h2 className="font-display text-xl font-bold">
             {t("Detail.about")}
           </h2>
-          <p className="mt-4 whitespace-pre-line text-sm leading-7 text-muted">
+          <p className="mt-3 whitespace-pre-line text-xs leading-6 text-muted sm:text-sm">
             {event.description || t("Market.unavailable")}
           </p>
           {event.resolutionSource ? (

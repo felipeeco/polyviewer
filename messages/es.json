@@ -64,6 +64,8 @@
     "outcomes": "Resultados actuales",
     "history": "Historial de probabilidad",
     "historyDescription": "Probabilidad implícita histórica para {outcome}.",
+    "mainActors": "Actores principales del pronóstico",
+    "actorsDescription": "Compara cómo han cambiado los principales resultados con el tiempo.",
     "range": "Rango del gráfico",
     "range1d": "1D",
     "range1w": "1S",

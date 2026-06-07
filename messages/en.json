@@ -64,6 +64,8 @@
     "outcomes": "Current outcomes",
     "history": "Probability history",
     "historyDescription": "Historical implied probability for {outcome}.",
+    "mainActors": "Main forecast actors",
+    "actorsDescription": "Compare how the leading outcomes have moved over time.",
     "range": "Chart range",
     "range1d": "1D",
     "range1w": "1W",
