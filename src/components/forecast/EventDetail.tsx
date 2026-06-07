@@ -119,6 +119,37 @@ export async function EventDetail({
       </section>
 
       <section className="pv-panel mt-6 p-5 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="font-display text-xl font-bold">
+              {t("Detail.mainActors")}
+            </h2>
+            <p className="mt-1 text-xs leading-5 text-muted sm:text-sm">
+              {t("Detail.actorsDescription")}
+            </p>
+          </div>
+          <div className="flex gap-1" aria-label={t("Detail.range")}>
+            {(["1d", "1w", "1m", "max"] as const).map((option) => (
+              <Link
+                key={option}
+                href={detailHref(event.slug, option)}
+                className={`rounded-lg px-3 py-2 text-xs font-extrabold uppercase transition ${
+                  range === option
+                    ? "bg-pv-red text-white"
+                    : "bg-white/5 text-muted hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                {t(`Detail.range${option === "max" ? "Max" : option}`)}
+              </Link>
+            ))}
+          </div>
+        </div>
+        <div className="mt-6">
+          <ProbabilityChart markets={rankedMarkets} range={range} />
+        </div>
+      </section>
+
+      <section className="pv-panel mt-6 p-5 sm:p-6">
         <h2 className="text-xs font-bold uppercase text-muted">
           {t("Detail.outcomes")}
         </h2>
@@ -180,37 +211,6 @@ export async function EventDetail({
               </div>
             </article>
           ))}
-        </div>
-      </section>
-
-      <section className="pv-panel mt-6 p-5 sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="font-display text-xl font-bold">
-              {t("Detail.mainActors")}
-            </h2>
-            <p className="mt-1 text-xs leading-5 text-muted sm:text-sm">
-              {t("Detail.actorsDescription")}
-            </p>
-          </div>
-          <div className="flex gap-1" aria-label={t("Detail.range")}>
-            {(["1d", "1w", "1m", "max"] as const).map((option) => (
-              <Link
-                key={option}
-                href={detailHref(event.slug, option)}
-                className={`rounded-lg px-3 py-2 text-xs font-extrabold uppercase transition ${
-                  range === option
-                    ? "bg-pv-red text-white"
-                    : "bg-white/5 text-muted hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                {t(`Detail.range${option === "max" ? "Max" : option}`)}
-              </Link>
-            ))}
-          </div>
-        </div>
-        <div className="mt-6">
-          <ProbabilityChart markets={rankedMarkets} range={range} />
         </div>
       </section>
 

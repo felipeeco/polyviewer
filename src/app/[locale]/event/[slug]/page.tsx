@@ -13,7 +13,7 @@ type DetailPageProps = {
 function chartRange(value: string | undefined): ChartRange {
   return value === "1d" || value === "1w" || value === "1m" || value === "max"
     ? value
-    : "1m";
+    : "max";
 }
 
 export async function generateMetadata({
