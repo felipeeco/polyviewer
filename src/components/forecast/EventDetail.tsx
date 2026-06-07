@@ -238,15 +238,6 @@ export async function EventDetail({
             </div>
           ) : null}
         </div>
-        <a
-          href={`https://polymarket.com/event/${event.slug}`}
-          target="_blank"
-          rel="noreferrer"
-          className="pv-button pv-button-primary self-start"
-        >
-          {t("Detail.openPolymarket")}
-          <LuExternalLink className="size-4" />
-        </a>
       </section>
     </div>
   );
