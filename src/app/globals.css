@@ -190,8 +190,11 @@ a {
   }
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1200px) {
   .pv-grid {
+    width: 100%;
+    margin-inline: 0;
+    padding-inline: 1.5rem;
     padding-inline: 2rem;
   }
 }
