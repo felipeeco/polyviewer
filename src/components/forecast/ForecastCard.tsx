@@ -1,6 +1,7 @@
 import {getFormatter, getTranslations} from "next-intl/server";
 import {LuArrowRight, LuCalendarClock, LuLayers3} from "react-icons/lu";
 import {Link} from "@/i18n/navigation";
+import {rankForecastMarkets} from "@/lib/polymarket/markets";
 import type {ForecastEvent, ForecastStatus} from "@/lib/polymarket/types";
 
 export async function ForecastCard({
@@ -12,8 +13,18 @@ export async function ForecastCard({
 }) {
   const t = await getTranslations("Market");
   const format = await getFormatter();
-  const leadingMarket = event.markets[0];
-  const leadingOutcomes = leadingMarket?.outcomes.slice(0, 2) ?? [];
+  const rankedMarkets = rankForecastMarkets(event.markets);
+  const leadingMarket = rankedMarkets[0];
+  const forecastRows =
+    rankedMarkets.length > 1
+      ? rankedMarkets.slice(0, 2).map((market) => ({
+          label: market.question,
+          probability: market.outcomes[0]?.probability ?? null
+        }))
+      : (leadingMarket?.outcomes.slice(0, 2) ?? []).map((outcome) => ({
+          label: outcome.name,
+          probability: outcome.probability
+        }));
   const date = status === "resolved" ? event.closedTime || event.endDate : event.endDate;
 
   return (
@@ -58,20 +69,20 @@ export async function ForecastCard({
           {event.title}
         </h2>
 
-        {leadingOutcomes.length ? (
+        {forecastRows.length ? (
           <div className="mt-5 grid gap-2">
-            {leadingOutcomes.map((outcome, index) => (
+            {forecastRows.map((row, index) => (
               <div
-                key={`${outcome.name}-${index}`}
+                key={`${row.label}-${index}`}
                 className="flex items-center justify-between rounded-lg border border-white/10 bg-black/35 px-3 py-2"
               >
                 <span className="truncate pr-3 text-sm text-muted">
-                  {outcome.name}
+                  {row.label}
                 </span>
                 <strong className={index === 0 ? "text-pv-red-bright" : "text-white"}>
-                  {outcome.probability === null
+                  {row.probability === null
                     ? t("unavailable")
-                    : format.number(outcome.probability, {
+                    : format.number(row.probability, {
                         style: "percent",
                         maximumFractionDigits: 1
                       })}

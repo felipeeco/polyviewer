@@ -2,6 +2,7 @@ import type {Metadata} from "next";
 import {getTranslations, setRequestLocale} from "next-intl/server";
 import {EventDetail} from "@/components/forecast/EventDetail";
 import {getForecastEvent} from "@/lib/polymarket/api";
+import {rankForecastMarkets} from "@/lib/polymarket/markets";
 import type {ChartRange} from "@/lib/polymarket/types";
 import {queryValue} from "@/lib/format";
 
@@ -49,9 +50,10 @@ export default async function ForecastDetailPage({
   }
 
   const marketId = queryValue(values.market);
+  const rankedMarkets = rankForecastMarkets(event.markets);
   const market =
     event.markets.find((candidate) => candidate.id === marketId) ??
-    event.markets[0];
+    rankedMarkets[0];
   const range = chartRange(queryValue(values.range));
 
   return <EventDetail event={event} market={market} range={range} />;

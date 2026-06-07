@@ -9,6 +9,7 @@ import {
 } from "react-icons/lu";
 import {Link} from "@/i18n/navigation";
 import {ProbabilityChart} from "./ProbabilityChart";
+import {rankForecastMarkets} from "@/lib/polymarket/markets";
 import type {
   ChartRange,
   ForecastEvent,
@@ -37,6 +38,7 @@ export async function EventDetail({
   const format = await getFormatter();
   const status = event.closed ? "resolved" : "live";
   const leadingOutcome = market.outcomes[0];
+  const rankedMarkets = rankForecastMarkets(event.markets);
 
   return (
     <div className="pv-grid py-9 sm:py-12">
@@ -134,7 +136,7 @@ export async function EventDetail({
             {t("Detail.selectMarket")}
           </h2>
           <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
-            {event.markets.map((option) => (
+            {rankedMarkets.map((option) => (
               <Link
                 key={option.id}
                 href={detailHref(event.slug, option, range)}
