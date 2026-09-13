@@ -31,6 +31,11 @@ type ListingOptions = {
   sort?: string;
 };
 
+type KeysetEventsPayload = {
+  events?: unknown[];
+  next_cursor?: string;
+};
+
 function cacheSeconds(status: ForecastStatus): number {
   return status === "live" ? 60 : 86400;
 }
@@ -59,6 +64,44 @@ function listingOrder(status: ForecastStatus, sort?: string): {
     default:
       return {order: "volume_24hr", ascending: "false"};
   }
+}
+
+/**
+ * Pattern: Adapter
+ * Layer: Infrastructure
+ * Responsibility: Retrieves an event page from Polymarket's current cursor-based listing endpoint.
+ */
+async function getKeysetForecastEvents(
+  status: ForecastStatus,
+  page: number,
+  tagId?: string
+): Promise<ForecastPage> {
+  let cursor: string | undefined;
+  let payload: KeysetEventsPayload = {};
+
+  for (let currentPage = 1; currentPage <= page; currentPage += 1) {
+    const url = new URL("/events/keyset", GAMMA_API);
+    url.searchParams.set("closed", status === "resolved" ? "true" : "false");
+    url.searchParams.set("limit", String(PAGE_SIZE));
+    if (tagId) url.searchParams.set("tag_id", tagId);
+    if (cursor) url.searchParams.set("after_cursor", cursor);
+
+    payload = (await getJson(url, cacheSeconds(status))) as KeysetEventsPayload;
+    cursor = payload.next_cursor;
+
+    if (currentPage < page && !cursor) {
+      return {events: [], hasNextPage: false};
+    }
+  }
+
+  const events = (Array.isArray(payload.events) ? payload.events : [])
+    .map(normalizeEvent)
+    .filter((event) => event.id && statusMatches(event, status));
+
+  return {
+    events,
+    hasNextPage: Boolean(payload.next_cursor)
+  };
 }
 
 function resolvePublicAddresses(hostname: string): Promise<string[]> {
@@ -216,15 +259,20 @@ export async function getForecastEvents({
   url.searchParams.set("ascending", ascending);
   if (tagId) url.searchParams.set("tag_id", tagId);
 
-  const payload = await getJson(url, cacheSeconds(status));
-  const events = (Array.isArray(payload) ? payload : [])
-    .map(normalizeEvent)
-    .filter((event) => event.id);
+  try {
+    const payload = await getJson(url, cacheSeconds(status));
+    if (!Array.isArray(payload)) {
+      throw new Error("Polymarket returned an unsupported events payload");
+    }
 
-  return {
-    events: events.slice(0, PAGE_SIZE),
-    hasNextPage: events.length > PAGE_SIZE
-  };
+    const events = payload.map(normalizeEvent).filter((event) => event.id);
+    return {
+      events: events.slice(0, PAGE_SIZE),
+      hasNextPage: events.length > PAGE_SIZE
+    };
+  } catch {
+    return getKeysetForecastEvents(status, safePage, tagId);
+  }
 }
 
 /**
